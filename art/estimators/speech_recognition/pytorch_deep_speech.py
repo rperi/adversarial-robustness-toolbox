@@ -22,6 +22,7 @@ Mandarin in PyTorch.
 | Paper link: https://arxiv.org/abs/1512.02595
 """
 import logging
+import random
 from typing import List, Optional, Tuple, Union, TYPE_CHECKING
 
 import numpy as np
@@ -125,7 +126,7 @@ class PyTorchDeepSpeech(SpeechRecognizerMixin, PyTorchEstimator):
         :param device_type: Type of device to be used for model and tensors, if `cpu` run on CPU, if `gpu` run on GPU
                             if available otherwise run on CPU.
         """
-        import torch
+        import torch  # lgtm [py/repeated-import]
 
         from deepspeech_pytorch.configs.inference_config import LMConfig
         from deepspeech_pytorch.enums import DecoderType
@@ -430,10 +431,7 @@ class PyTorchDeepSpeech(SpeechRecognizerMixin, PyTorchEstimator):
         :param kwargs: Dictionary of framework-specific arguments. This parameter is not currently supported for PyTorch
                and providing it takes no effect.
         """
-        import random
-
-        import torch
-
+        import torch  # lgtm [py/repeated-import]
         from warpctc_pytorch import CTCLoss
 
         # Put the model in the training mode
@@ -528,9 +526,8 @@ class PyTorchDeepSpeech(SpeechRecognizerMixin, PyTorchEstimator):
                     - target_sizes: list of real seq_lengths.
                     - batch_idx: original index of inputs.
         """
-        import torch
+        import torch  # lgtm [py/repeated-import]
         import torchaudio
-
         from deepspeech_pytorch.loader.data_loader import _collate_fn
 
         # These parameters are needed for the transformation
