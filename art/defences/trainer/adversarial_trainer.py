@@ -45,7 +45,11 @@ if TYPE_CHECKING:
     from art.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
     from art.attacks.attack import EvasionAttack
     from art.data_generators import DataGenerator
-
+import torch
+from sklearn.metrics import accuracy_score
+import numpy as np
+import os
+import pdb
 logger = logging.getLogger(__name__)
 
 
@@ -142,11 +146,12 @@ class AdversarialTrainer(Trainer):
                 self._precomputed_adv_samples.append(next_precomputed_adv_samples)
             else:
                 self._precomputed_adv_samples.append(None)
-
+        ep = 0
         for _ in trange(nb_epochs, desc="Adversarial training epochs"):
+            ep += 1
             # Shuffle the indices of precomputed examples
             np.random.shuffle(ind)
-
+            targets_all, preds_all = [], []
             for batch_id in range(nb_batches):
                 # Create batch data
                 x_batch, y_batch = generator.get_batch()
@@ -173,8 +178,23 @@ class AdversarialTrainer(Trainer):
                     x_batch[adv_ids] = x_adv
 
                 # Fit batch
-                self._classifier.fit(x_batch, y_batch, nb_epochs=1, batch_size=x_batch.shape[0], verbose=0, **kwargs)
+                targets, preds = self._classifier.fit(x_batch, y_batch, nb_epochs=1, batch_size=x_batch.shape[0], verbose=0, **kwargs)
                 attack_id = (attack_id + 1) % len(self.attacks)
+                targets_all.append(targets)
+                preds_all.append(preds)
+            targets_all = [x for y in targets_all for x in y]
+            preds_all = [x for y in preds_all for x in y]
+            acc = accuracy_score(targets_all,preds_all)
+
+            #with open("/work/rperi/gard/scripts/eval_Dec2020/logs/undefended_train_acc_lr1e-4.txt", 'a') as o:
+            with open("/work/rperi/gard/scripts/eval_Dec2020/logs/PGD_train_acc_lr5e-4_ratio_0.45_allModels_newART_newArmory.txt", 'a') as o:
+                o.write("{} {}\n".format(ep, np.round(acc*100,4)))
+            if ep%20==0:
+                model_dir = "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_defended_PGD10AT/epochs_300_Adam_lr5e-4_allModels_ratio_0.45_newART_newArmory/"
+                if not os.path.exists(model_dir):
+                    os.makedirs(model_dir)
+                #torch.save(self._classifier._model._model, "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_undefended/epochs_300_Adam_rerun/saved_ep_{}.pth".format(ep))
+                torch.save(self._classifier._model._model, "{}/saved_ep_{}.pth".format(model_dir,ep))
 
     def fit(self, x: np.ndarray, y: np.ndarray, batch_size: int = 128, nb_epochs: int = 20, **kwargs) -> None:
         """

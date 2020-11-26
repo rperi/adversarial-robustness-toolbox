@@ -258,6 +258,9 @@ class PyTorchClassifier(ClassGradientsMixin, ClassifierMixin, PyTorchEstimator):
                 # Actual training
                 loss.backward()
                 self._optimizer.step()
+        targets = o_batch.detach().cpu().numpy()
+        predictions = torch.argmax(model_outputs[0].detach(), axis=1).cpu().numpy()
+        return targets, predictions
 
     def fit_generator(self, generator: "DataGenerator", nb_epochs: int = 20, **kwargs) -> None:
         """
