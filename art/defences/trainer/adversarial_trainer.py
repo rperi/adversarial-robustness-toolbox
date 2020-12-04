@@ -185,12 +185,15 @@ class AdversarialTrainer(Trainer):
             targets_all = [x for y in targets_all for x in y]
             preds_all = [x for y in preds_all for x in y]
             acc = accuracy_score(targets_all,preds_all)
-
             #with open("/work/rperi/gard/scripts/eval_Dec2020/logs/undefended_train_acc_lr1e-4.txt", 'a') as o:
-            with open("/work/rperi/gard/scripts/eval_Dec2020/logs/PGD_train_acc_lr5e-4_ratio_0.45_allModels_newART_newArmory.txt", 'a') as o:
+            with open("/work/rperi/gard/scripts/eval_Dec2020/logs/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.002_epsstep0.0004.txt", 'a') as o:
+            #with open("/work/rperi/gard/scripts/eval_Dec2020/logs/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.01_epsstep0.005.txt", 'a') as o:
+            #with open("/work/rperi/gard/scripts/eval_Dec2020/logs/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.2_epsstep0.1.txt", 'a') as o:
                 o.write("{} {}\n".format(ep, np.round(acc*100,4)))
             if ep%20==0:
-                model_dir = "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_defended_PGD10AT/epochs_300_Adam_lr5e-4_allModels_ratio_0.45_newART_newArmory/"
+                model_dir = "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_defended_PGD10AT/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.002_epsstep0.0004/"
+                #model_dir = "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_defended_PGD10AT/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.01_epsstep0.005/"
+                #model_dir = "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_defended_PGD10AT/newART_newArmory_Adamlr5e-4_epochs2000_ratio0.45_eps0.2_epsstep0.1/"
                 if not os.path.exists(model_dir):
                     os.makedirs(model_dir)
                 #torch.save(self._classifier._model._model, "/work/rperi/gard/scripts/eval_Dec2020/saved_models/FGSM_undefended/epochs_300_Adam_rerun/saved_ep_{}.pth".format(ep))
